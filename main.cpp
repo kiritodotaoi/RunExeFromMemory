@@ -12,7 +12,8 @@ EXTERN_C NTSTATUS NTAPI NtSetContextThread(HANDLE,PCONTEXT);
 EXTERN_C NTSTATUS NTAPI NtUnmapViewOfSection(HANDLE,PVOID);
 EXTERN_C NTSTATUS NTAPI NtResumeThread(HANDLE,PULONG);
 
-int main(int argc,char* argv[])
+
+int RunExeFromMemory( char* hostExe, char* replaceExe)
 {
 	PIMAGE_DOS_HEADER pIDH;
 	PIMAGE_NT_HEADERS pINH;
@@ -31,15 +32,10 @@ int main(int argc,char* argv[])
 	memset(&si,0,sizeof(si));
 	memset(&pi,0,sizeof(pi));
 
-	if(argc!=3)
-	{
-		printf("\nUsage: [Target executable] [Replacement executable]\n");
-		return 1;
-	}
 
 	printf("\nRunning the target executable.\n");
 
-	if(!CreateProcess(NULL,argv[1],NULL,NULL,FALSE,CREATE_SUSPENDED,NULL,NULL,&si,&pi)) // Start the target application
+	if(!CreateProcess(NULL,hostExe,NULL,NULL,FALSE,CREATE_SUSPENDED,NULL,NULL,&si,&pi)) // Start the target application
 	{
 		printf("\nError: Unable to run the target executable. CreateProcess failed with error %d\n",GetLastError());
 		return 1;
@@ -49,7 +45,7 @@ int main(int argc,char* argv[])
 
 	printf("\nOpening the replacement executable.\n");
 
-	hFile=CreateFile(argv[2],GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL); // Open the replacement executable
+	hFile=CreateFile(replaceExe,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL); // Open the replacement executable
 
 	if(hFile==INVALID_HANDLE_VALUE)
 	{
@@ -144,5 +140,29 @@ int main(int argc,char* argv[])
 	NtClose(pi.hProcess); // Close the process handle
 
 	VirtualFree(image,0,MEM_RELEASE); // Free the allocated memory
+	return 0;
+}
+
+
+int main(int argc,char* argv[])
+{
+
+
+	if(argc >3 || argc <2)
+	{
+		printf("\nUsage: [Host executable] [Replacement executable]\n");
+		printf("\nOr Usage: [Replacement executable]\n");
+		return 1;
+	}
+
+	if(argc == 3){//RunExeFromMemory.exe host.exe replace.exe
+		return RunExeFromMemory(argv[1],argv[2]);  //RunExeFromMemory( "host.exe", "replace.exe")
+	}
+	if(argc == 2){//RunExeFromMemory.exe replace.exe
+		return RunExeFromMemory(argv[0],argv[1]); //RunExeFromMemory( "RunExeFromMemory.exe", "replace.exe")
+	}
+
+
+	
 	return 0;
 }
