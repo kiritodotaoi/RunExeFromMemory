@@ -9,4 +9,4 @@ RunFromMemory
 # Usage
 ## Usage: ` RunExeFromMemory.exe [Target executable] [Replacement executable]  `
 ## example: ` RunExeFromMemory.exe hello.exe  helloAgain.exe ` 
-## plus: you could change source code to make  RunExeFromMemory.exe to receive bytes from network, and store it in memory .Then run the network bytes(Wow!turn RunExeFromMemory.exe  into a real malware now )
+## plus: you could change source code to make  RunExeFromMemory.exe to receive bytes from network, and store it in memory .Then runs the network bytes(Wow!turns RunExeFromMemory.exe  into a real malware now )
